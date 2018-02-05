@@ -1,9 +1,13 @@
+from __future__ import absolute_import
 from .common import *
 ENVIRONMENT = 'development'
 
 DEBUG = True
 
 TEMPLATE_DEBUG = True
+
+import uuid
+uuid._uuid_generate_random = None
 
 INSTALLED_APPS += (
     'debug_toolbar',

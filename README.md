@@ -40,3 +40,8 @@ Please submit feedback, bugs, feature requests [here](https://github.com/Eyjafja
 ### Contribute
 
 Vagrant configuration is available for easy development, included Puppet rules will build complete environment. [Read more](http://gunnery.readthedocs.org/en/latest/develop.html)
+
+
+# install
+manage.py  schemamigration
+manage.py  migrate
