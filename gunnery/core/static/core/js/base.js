@@ -3,12 +3,16 @@ $('.execution-list-inline .well').click(function (event) {
 });
 
 (function ($) {
-    $('.sessionMessageWrap div').addClass('show').each(function(i, e){
+    $('.sessionMessageWrap div').addClass('show').each(function (i, e) {
         e = $(e);
         if (!e.hasClass('error')) {
-            setTimeout(function(){$(e).removeClass('show')}, e.text().length*256);
+            setTimeout(function () {
+                $(e).removeClass('show')
+            }, e.text().length * 256);
         }
-    }).click(function(){
+    }).click(function () {
         $(this).removeClass('show');
     });
 })(jQuery);
+
+var $ = jQuery;

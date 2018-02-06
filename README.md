@@ -43,5 +43,10 @@ Vagrant configuration is available for easy development, included Puppet rules w
 
 
 # install
+
 manage.py  schemamigration
 manage.py  migrate
+
+
+# 
+./lib/python2.7/site-packages/debug_toolbar/settings.py:    'JQUERY_URL': '//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js',
