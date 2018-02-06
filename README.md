@@ -50,3 +50,9 @@ manage.py  migrate
 
 # 
 ./lib/python2.7/site-packages/debug_toolbar/settings.py:    'JQUERY_URL': '//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js',
+
+
+
+##  启动celery
+manage.py celeryd -l info
+

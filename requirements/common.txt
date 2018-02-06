@@ -23,3 +23,7 @@ sqlparse==0.1.11
 wsgiref==0.1.2
 git+https://github.com/Eyjafjallajokull/django-timezone-field.git@develop#egg=django-timezone-field
 sphinx
+
+# 后台任务broker
+celery-with-redis==3.0
+redis==2.10.6
