@@ -56,3 +56,10 @@ manage.py  migrate
 ##  启动celery
 manage.py celeryd -l info
 
+
+## ssh error
+SSHException: Incompatible ssh peer (no acceptable kex algorithm)
+
+这是由于ssh 6.7以上屏蔽不安全算法，在/etc/ssh/sshd_config最后加上
+
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1

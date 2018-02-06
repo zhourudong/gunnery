@@ -1,3 +1,4 @@
+#coding:utf8
 from subprocess import Popen, PIPE, STDOUT
 from hashlib import md5
 from django.conf import settings
@@ -33,9 +34,9 @@ class SecureFile(object):
         name_hash = md5(settings.SECRET_KEY + self.prefix + uid).hexdigest()
         self.file_name = os.path.join(settings.PRIVATE_DIR, name_hash)
 
-    # if not os.path.exists(self.file_name):
-    # 	open(self.file_name, 'w')
-    # 	os.chmod(self.file_name, 0700)
+        # if not os.path.exists(self.file_name):
+        #     open(self.file_name, 'w')
+        #     os.chmod(self.file_name, 0700)
 
     def get_file_name(self):
         return self.file_name
@@ -65,6 +66,7 @@ class PrivateKey(SecureFile):
                         stdout=PIPE,
                         stderr=STDOUT)
         stdout, stderr = process.communicate()
+        print("stdout:", stdout, " stderr:", stderr)
         if process.returncode != 0:
             raise RuntimeError('%s failed with code %d' % (command, process.returncode))
 

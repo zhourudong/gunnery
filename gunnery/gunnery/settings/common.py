@@ -135,7 +135,10 @@ AUTHENTICATION_BACKENDS = (
 AUTH_USER_MODEL = 'account.CustomUser'
 ANONYMOUS_USER_ID = -1
 
-PRIVATE_DIR = '/var/gunnery/secure'
+# PRIVATE_DIR = '/var/gunnery/secure'
+parent_dir =  os.path.dirname(BASE_DIR)
+PRIVATE_DIR = os.path.join(parent_dir, "secure")
+
 
 LOGGING = {
     'version': 1,

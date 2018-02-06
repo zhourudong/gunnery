@@ -6,3 +6,4 @@ puppet/manifests/hieradata/local.yaml
 .vagrant
 .idea
 docs/_build
+secure/
