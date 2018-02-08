@@ -1,3 +1,4 @@
+#coding:utf8
 """
 Django settings for gunnery project.
 
@@ -68,7 +69,7 @@ WSGI_APPLICATION = 'gunnery.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-""" 
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -116,8 +117,11 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
 
 # CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
+# 接收任务存放在redis
 BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+# 执行任务完成 返回数据存放位置
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TASK_SERIALIZER = "json"
 
