@@ -43,12 +43,10 @@ Vagrant configuration is available for easy development, included Puppet rules w
 
 
 # install
-
-manage.py  schemamigration
-manage.py  migrate
+pip install -r /PATH_TO_PROJECT/gunnery/requirements/development.txt
 
 
-# 
+# 修改jquery为国内源
 ./lib/python2.7/site-packages/debug_toolbar/settings.py:    'JQUERY_URL': '//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js',
 
 
@@ -58,12 +56,13 @@ manage.py celeryd -l info
 
 
 ## ssh error
+```
 SSHException: Incompatible ssh peer (no acceptable kex algorithm)
 
 这是由于ssh 6.7以上屏蔽不安全算法，在/etc/ssh/sshd_config最后加上
 
 KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1
-
+```
 
 ## 数据库
 

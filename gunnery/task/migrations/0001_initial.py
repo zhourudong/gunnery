@@ -7,10 +7,6 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = (
-        ("account", "0001_initial"),
-    )
-
     def forwards(self, orm):
         # Adding model 'Task'
         db.create_table(u'task_task', (
@@ -64,6 +60,7 @@ class Migration(SchemaMigration):
             ('environment', self.gf('django.db.models.fields.related.ForeignKey')(related_name='executions', to=orm['core.Environment'])),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='executions', to=orm['account.CustomUser'])),
             ('status', self.gf('django.db.models.fields.IntegerField')(default=3)),
+            ('celery_task_id', self.gf('django.db.models.fields.CharField')(max_length=36, blank=True)),
         ))
         db.send_create_signal(u'task', ['Execution'])
 
@@ -81,6 +78,7 @@ class Migration(SchemaMigration):
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('execution', self.gf('django.db.models.fields.related.ForeignKey')(related_name='commands', to=orm['task.Execution'])),
             ('command', self.gf('django.db.models.fields.TextField')()),
+            ('order', self.gf('django.db.models.fields.IntegerField')()),
         ))
         db.send_create_signal(u'task', ['ExecutionCommand'])
 
@@ -104,6 +102,7 @@ class Migration(SchemaMigration):
             ('return_code', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
             ('server', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Server'])),
             ('output', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('celery_task_id', self.gf('django.db.models.fields.CharField')(max_length=36, blank=True)),
         ))
         db.send_create_signal(u'task', ['ExecutionCommandServer'])
 
@@ -160,11 +159,11 @@ class Migration(SchemaMigration):
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'timezone': ('timezone_field.fields.TimeZoneField', [], {'default': "'UTC'"}),
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"})
         },
         u'auth.group': {
@@ -188,42 +187,43 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'core.application': {
-            'Meta': {'unique_together': "(('department', 'name'),)", 'object_name': 'Application'},
+            'Meta': {'ordering': "['name']", 'unique_together': "(('department', 'name'),)", 'object_name': 'Application'},
             'department': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'applications'", 'to': u"orm['core.Department']"}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'core.department': {
-            'Meta': {'object_name': 'Department'},
+            'Meta': {'ordering': "['name']", 'object_name': 'Department'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '128'})
         },
         u'core.environment': {
-            'Meta': {'unique_together': "(('application', 'name'),)", 'object_name': 'Environment'},
+            'Meta': {'ordering': "['name']", 'unique_together': "(('application', 'name'),)", 'object_name': 'Environment'},
             'application': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'environments'", 'to': u"orm['core.Application']"}),
-            'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_production': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'core.server': {
-            'Meta': {'unique_together': "(('environment', 'name'),)", 'object_name': 'Server'},
+            'Meta': {'ordering': "['name']", 'unique_together': "(('environment', 'name'),)", 'object_name': 'Server'},
             'environment': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'servers'", 'to': u"orm['core.Environment']"}),
             'host': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'method': ('django.db.models.fields.IntegerField', [], {'default': '2'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'port': ('django.db.models.fields.IntegerField', [], {'default': '22'}),
             'roles': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'servers'", 'symmetrical': 'False', 'to': u"orm['core.ServerRole']"}),
             'user': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'core.serverrole': {
-            'Meta': {'object_name': 'ServerRole'},
+            'Meta': {'unique_together': "(('department', 'name'),)", 'object_name': 'ServerRole'},
             'department': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'serverroles'", 'to': u"orm['core.Department']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '32'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '32'})
         },
         u'task.execution': {
             'Meta': {'object_name': 'Execution'},
+            'celery_task_id': ('django.db.models.fields.CharField', [], {'max_length': '36', 'blank': 'True'}),
             'environment': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'executions'", 'to': u"orm['core.Environment']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('django.db.models.fields.IntegerField', [], {'default': '3'}),
@@ -235,14 +235,16 @@ class Migration(SchemaMigration):
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'executions'", 'to': u"orm['account.CustomUser']"})
         },
         u'task.executioncommand': {
-            'Meta': {'object_name': 'ExecutionCommand'},
+            'Meta': {'ordering': "['order']", 'object_name': 'ExecutionCommand'},
             'command': ('django.db.models.fields.TextField', [], {}),
             'execution': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'commands'", 'to': u"orm['task.Execution']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.IntegerField', [], {}),
             'roles': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['core.ServerRole']", 'symmetrical': 'False'})
         },
         u'task.executioncommandserver': {
-            'Meta': {'object_name': 'ExecutionCommandServer'},
+            'Meta': {'ordering': "['server__name']", 'object_name': 'ExecutionCommandServer'},
+            'celery_task_id': ('django.db.models.fields.CharField', [], {'max_length': '36', 'blank': 'True'}),
             'execution_command': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'servers'", 'to': u"orm['task.ExecutionCommand']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'output': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
@@ -275,7 +277,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'task.taskcommand': {
-            'Meta': {'object_name': 'TaskCommand'},
+            'Meta': {'ordering': "['order']", 'object_name': 'TaskCommand'},
             'command': ('django.db.models.fields.TextField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {}),
@@ -283,7 +285,7 @@ class Migration(SchemaMigration):
             'task': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'commands'", 'to': u"orm['task.Task']"})
         },
         u'task.taskparameter': {
-            'Meta': {'object_name': 'TaskParameter'},
+            'Meta': {'ordering': "['order']", 'object_name': 'TaskParameter'},
             'default_value': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

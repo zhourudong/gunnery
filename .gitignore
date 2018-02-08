@@ -7,3 +7,5 @@ puppet/manifests/hieradata/local.yaml
 .idea
 docs/_build
 secure/
+00*.py
+db.sqlite3
