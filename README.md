@@ -63,3 +63,30 @@ SSHException: Incompatible ssh peer (no acceptable kex algorithm)
 这是由于ssh 6.7以上屏蔽不安全算法，在/etc/ssh/sshd_config最后加上
 
 KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1
+
+
+## 数据库
+
+`一定要按顺序执行`
+```
+cd gunnery/gunnery
+find . -name 'db.sqlite3' | xargs rm
+
+find . -name '00*py' | xargs rm 
+python manage.py   schemamigration account  --initial
+python manage.py   schemamigration core  --initial
+python manage.py   schemamigration event  --initial
+python manage.py   schemamigration task  --initial
+
+python manage.py syncdb 
+python manage.py  migrate django_extensions 
+python manage.py  migrate djcelery
+python manage.py  migrate account
+python manage.py  migrate guardian
+python manage.py  migrate task
+python manage.py  migrate event
+python manage.py  migrate core
+
+```
+
+
