@@ -88,4 +88,9 @@ python manage.py  migrate core
 
 ```
 
+## 启动celery
+
+```
+celery -A gunnery worker -l info
+```
 
